@@ -5,8 +5,8 @@ import (
 	"go.uber.org/zap"
 )
 
-func (h *Handler) Test(c *fiber.Ctx) error {
-	err := h.Uc.Test()
+func (h *Handler) CreateWalletOperation(c *fiber.Ctx) error {
+	err := h.Uc.CreateWalletOperation()
 	if err != nil {
 		h.logger.Error("Error", zap.Error(err))
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})

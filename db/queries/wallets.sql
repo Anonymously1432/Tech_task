@@ -1,9 +1,14 @@
 -- name: CreateWalletOperation :one
-INSERT INTO wallets (operationType, amount)
-VALUES ($1, $2)
+INSERT INTO requests_history (operationType, amount, wallet_id)
+VALUES ($1, $2, $3)
 RETURNING *;
 
 -- name: GetWalletAmount :one
 SELECT amount
 FROM wallets
-WHERE valletId = $1;
+WHERE id = $1;
+
+-- name: UpdateWalletAmount :exec
+UPDATE wallets
+SET amount = $2
+WHERE id = $1;

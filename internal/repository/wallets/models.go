@@ -8,8 +8,13 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
-type Wallet struct {
-	Valletid      pgtype.UUID `db:"valletid" json:"valletid"`
+type RequestsHistory struct {
 	Operationtype string      `db:"operationtype" json:"operationtype"`
-	Amount        int32       `db:"amount" json:"amount"`
+	WalletID      pgtype.UUID `db:"wallet_id" json:"wallet_id"`
+	Amount        float32     `db:"amount" json:"amount"`
+}
+
+type Wallet struct {
+	ID     pgtype.UUID `db:"id" json:"id"`
+	Amount float32     `db:"amount" json:"amount"`
 }

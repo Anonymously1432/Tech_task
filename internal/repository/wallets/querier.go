@@ -9,8 +9,9 @@ import (
 )
 
 type Querier interface {
-	CreateWalletOperation(ctx context.Context, arg *CreateWalletOperationParams) (*Wallet, error)
-	GetWalletAmount(ctx context.Context, arg *GetWalletAmountParams) (int32, error)
+	CreateWalletOperation(ctx context.Context, arg *CreateWalletOperationParams) (*RequestsHistory, error)
+	GetWalletAmount(ctx context.Context, arg *GetWalletAmountParams) (float32, error)
+	UpdateWalletAmount(ctx context.Context, arg *UpdateWalletAmountParams) error
 }
 
 var _ Querier = (*Queries)(nil)

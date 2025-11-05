@@ -12,36 +12,53 @@ import (
 )
 
 const createWalletOperation = `-- name: CreateWalletOperation :one
-INSERT INTO wallets (operationType, amount)
-VALUES ($1, $2)
-RETURNING valletid, operationtype, amount
+INSERT INTO requests_history (operationType, amount, wallet_id)
+VALUES ($1, $2, $3)
+RETURNING operationtype, wallet_id, amount
 `
 
 type CreateWalletOperationParams struct {
-	Operationtype string `db:"operationtype" json:"operationtype"`
-	Amount        int32  `db:"amount" json:"amount"`
+	Operationtype string      `db:"operationtype" json:"operationtype"`
+	Amount        float32     `db:"amount" json:"amount"`
+	WalletID      pgtype.UUID `db:"wallet_id" json:"wallet_id"`
 }
 
-func (q *Queries) CreateWalletOperation(ctx context.Context, arg *CreateWalletOperationParams) (*Wallet, error) {
-	row := q.db.QueryRow(ctx, createWalletOperation, arg.Operationtype, arg.Amount)
-	var i Wallet
-	err := row.Scan(&i.Valletid, &i.Operationtype, &i.Amount)
+func (q *Queries) CreateWalletOperation(ctx context.Context, arg *CreateWalletOperationParams) (*RequestsHistory, error) {
+	row := q.db.QueryRow(ctx, createWalletOperation, arg.Operationtype, arg.Amount, arg.WalletID)
+	var i RequestsHistory
+	err := row.Scan(&i.Operationtype, &i.WalletID, &i.Amount)
 	return &i, err
 }
 
 const getWalletAmount = `-- name: GetWalletAmount :one
 SELECT amount
 FROM wallets
-WHERE valletId = $1
+WHERE id = $1
 `
 
 type GetWalletAmountParams struct {
-	Valletid pgtype.UUID `db:"valletid" json:"valletid"`
+	ID pgtype.UUID `db:"id" json:"id"`
 }
 
-func (q *Queries) GetWalletAmount(ctx context.Context, arg *GetWalletAmountParams) (int32, error) {
-	row := q.db.QueryRow(ctx, getWalletAmount, arg.Valletid)
-	var amount int32
+func (q *Queries) GetWalletAmount(ctx context.Context, arg *GetWalletAmountParams) (float32, error) {
+	row := q.db.QueryRow(ctx, getWalletAmount, arg.ID)
+	var amount float32
 	err := row.Scan(&amount)
 	return amount, err
+}
+
+const updateWalletAmount = `-- name: UpdateWalletAmount :exec
+UPDATE wallets
+SET amount = $2
+WHERE id = $1
+`
+
+type UpdateWalletAmountParams struct {
+	ID     pgtype.UUID `db:"id" json:"id"`
+	Amount float32     `db:"amount" json:"amount"`
+}
+
+func (q *Queries) UpdateWalletAmount(ctx context.Context, arg *UpdateWalletAmountParams) error {
+	_, err := q.db.Exec(ctx, updateWalletAmount, arg.ID, arg.Amount)
+	return err
 }

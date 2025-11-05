@@ -17,5 +17,8 @@ func NewHandler(log *zap.Logger, uc wallets.IUseCase) *Handler {
 }
 
 func RegisterRoutes(app fiber.Router, h *Handler) {
-	app.Get("/", h.Test)
+	wallet := app.Group("/wallet")
+
+	wallet.Get("/:id", h.GetWalletAmount)
+	wallet.Post("/", h.CreateWalletOperation)
 }
