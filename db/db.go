@@ -5,8 +5,9 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/jackc/pgx/v5/pgxpool"
 	"tech_task/internal/config"
+
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 func Connect(cfg *config.Config) (*pgxpool.Pool, error) {
