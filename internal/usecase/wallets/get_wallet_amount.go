@@ -6,6 +6,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
+	"go.uber.org/zap"
 )
 
 func (u *UseCase) GetWalletAmount(ctx context.Context, walletID uuid.UUID) (float32, error) {
@@ -14,8 +15,10 @@ func (u *UseCase) GetWalletAmount(ctx context.Context, walletID uuid.UUID) (floa
 		Valid: true,
 	}})
 	if err != nil {
+		u.logger.Error("GetWalletAmount error", zap.Error(err))
 		return 0, err
 	}
 
+	u.logger.Info("GetWalletAmount success", zap.Any("amount", amount))
 	return amount, nil
 }

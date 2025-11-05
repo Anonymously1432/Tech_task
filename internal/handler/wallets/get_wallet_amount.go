@@ -12,6 +12,7 @@ func (h *Handler) GetWalletAmount(c *fiber.Ctx) error {
 	walletID := c.Params("id")
 	walletUUID, err := uuid.Parse(walletID)
 	if err != nil {
+		h.logger.Error("GetWalletAmount Parse", zap.Error(err))
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
 	}
 
@@ -21,6 +22,6 @@ func (h *Handler) GetWalletAmount(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}
 
-	h.logger.Info("Success")
+	h.logger.Info("Get wallet amount success", zap.Any("amount", amount))
 	return c.Status(fiber.StatusOK).JSON(domain.GetWalletAmountResponse(amount))
 }
