@@ -10,7 +10,7 @@ import (
 
 type IUseCase interface {
 	GetWalletAmount(ctx context.Context, walletID uuid.UUID) (float32, error)
-	CreateWalletOperation() error
+	CreateWalletOperation(ctx context.Context, walletID uuid.UUID, operationType string, walletAmount float32) (float32, error)
 }
 
 type UseCase struct {

@@ -9,8 +9,10 @@ import (
 )
 
 type Querier interface {
+	AddAmount(ctx context.Context, arg *AddAmountParams) error
 	CreateWalletOperation(ctx context.Context, arg *CreateWalletOperationParams) (*RequestsHistory, error)
 	GetWalletAmount(ctx context.Context, arg *GetWalletAmountParams) (float32, error)
+	SubtractAmountIfEnough(ctx context.Context, arg *SubtractAmountIfEnoughParams) error
 	UpdateWalletAmount(ctx context.Context, arg *UpdateWalletAmountParams) error
 }
 

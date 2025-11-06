@@ -12,3 +12,13 @@ WHERE id = $1;
 UPDATE wallets
 SET amount = $2
 WHERE id = $1;
+
+-- name: AddAmount :exec
+UPDATE wallets
+SET amount = amount + $2
+WHERE id = $1;
+
+-- name: SubtractAmountIfEnough :exec
+UPDATE wallets
+SET amount = amount - $2
+WHERE id = $1 AND amount >= $2;

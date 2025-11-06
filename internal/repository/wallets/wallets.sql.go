@@ -11,6 +11,22 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+const addAmount = `-- name: AddAmount :exec
+UPDATE wallets
+SET amount = amount + $2
+WHERE id = $1
+`
+
+type AddAmountParams struct {
+	ID     pgtype.UUID `db:"id" json:"id"`
+	Amount float32     `db:"amount" json:"amount"`
+}
+
+func (q *Queries) AddAmount(ctx context.Context, arg *AddAmountParams) error {
+	_, err := q.db.Exec(ctx, addAmount, arg.ID, arg.Amount)
+	return err
+}
+
 const createWalletOperation = `-- name: CreateWalletOperation :one
 INSERT INTO requests_history (operationType, amount, wallet_id)
 VALUES ($1, $2, $3)
@@ -45,6 +61,22 @@ func (q *Queries) GetWalletAmount(ctx context.Context, arg *GetWalletAmountParam
 	var amount float32
 	err := row.Scan(&amount)
 	return amount, err
+}
+
+const subtractAmountIfEnough = `-- name: SubtractAmountIfEnough :exec
+UPDATE wallets
+SET amount = amount - $2
+WHERE id = $1 AND amount >= $2
+`
+
+type SubtractAmountIfEnoughParams struct {
+	ID     pgtype.UUID `db:"id" json:"id"`
+	Amount float32     `db:"amount" json:"amount"`
+}
+
+func (q *Queries) SubtractAmountIfEnough(ctx context.Context, arg *SubtractAmountIfEnoughParams) error {
+	_, err := q.db.Exec(ctx, subtractAmountIfEnough, arg.ID, arg.Amount)
+	return err
 }
 
 const updateWalletAmount = `-- name: UpdateWalletAmount :exec
