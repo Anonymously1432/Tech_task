@@ -25,7 +25,6 @@ func (u *UseCase) CreateWalletOperation(ctx context.Context, walletID uuid.UUID,
 
 	idStr := walletID.String()
 
-	// блокируем кошелек
 	u.wl.Lock(idStr)
 	defer u.wl.Unlock(idStr)
 

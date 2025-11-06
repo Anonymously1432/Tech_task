@@ -13,7 +13,6 @@ func NewWalletLocker() *WalletLocker {
 	}
 }
 
-// Получить мьютекс для конкретного кошелька
 func (wl *WalletLocker) Lock(walletID string) {
 	wl.mu.Lock()
 	m, exists := wl.locks[walletID]
@@ -23,7 +22,7 @@ func (wl *WalletLocker) Lock(walletID string) {
 	}
 	wl.mu.Unlock()
 
-	m.Lock() // блокируем конкретный кошелёк
+	m.Lock()
 }
 
 func (wl *WalletLocker) Unlock(walletID string) {
