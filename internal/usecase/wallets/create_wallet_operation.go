@@ -6,6 +6,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
+	"go.uber.org/zap"
 )
 
 func (u *UseCase) CreateWalletOperation(ctx context.Context, walletID uuid.UUID, operationType string, walletAmount float32) (float32, error) {
@@ -18,6 +19,7 @@ func (u *UseCase) CreateWalletOperation(ctx context.Context, walletID uuid.UUID,
 		Amount: walletAmount,
 	})
 	if err != nil {
+		u.logger.Error("CreateWalletOperation failed", zap.Error(err))
 		return 0, err
 	}
 
@@ -30,6 +32,7 @@ func (u *UseCase) CreateWalletOperation(ctx context.Context, walletID uuid.UUID,
 				Valid: true,
 			}})
 		if err != nil {
+			u.logger.Error("AddAmount failed", zap.Error(err))
 			return 0, err
 		}
 
@@ -42,6 +45,7 @@ func (u *UseCase) CreateWalletOperation(ctx context.Context, walletID uuid.UUID,
 			},
 		})
 		if err != nil {
+			u.logger.Error("SubtractAmountIfEnough failed", zap.Error(err))
 			return 0, err
 		}
 	}
@@ -53,5 +57,6 @@ func (u *UseCase) CreateWalletOperation(ctx context.Context, walletID uuid.UUID,
 		},
 	})
 
+	u.logger.Info("GetWalletAmount success")
 	return balance, nil
 }
