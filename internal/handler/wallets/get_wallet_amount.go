@@ -1,10 +1,12 @@
 package wallets
 
 import (
+	"errors"
 	"tech_task/internal/domain"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5"
 	"go.uber.org/zap"
 )
 
@@ -18,6 +20,9 @@ func (h *Handler) GetWalletAmount(c *fiber.Ctx) error {
 
 	amount, err := h.Uc.GetWalletAmount(c.Context(), walletUUID)
 	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return c.Status(fiber.StatusNotFound).JSON(fiber.Map{"error": err.Error()})
+		}
 		h.logger.Error("Error", zap.Error(err))
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}

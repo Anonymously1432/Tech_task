@@ -13,6 +13,7 @@ import (
 
 	"github.com/golang/mock/gomock"
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgtype"
 	"go.uber.org/zap/zaptest"
 )
@@ -49,7 +50,7 @@ func TestUseCase_GetWalletAmount_Success(t *testing.T) {
 	}
 }
 
-func TestUseCase_GetWalletAmount_Error(t *testing.T) {
+func TestUseCase_GetWalletAmount_NoRows(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
@@ -59,22 +60,40 @@ func TestUseCase_GetWalletAmount_Error(t *testing.T) {
 	u := wallets_usecase.NewUseCase(zaptest.NewLogger(t), mockRepo, wl)
 
 	walletID := uuid.New()
-	expectedErr := errors.New("repository error")
 
 	mockRepo.EXPECT().
-		GetWalletAmount(
-			gomock.Any(),
-			gomock.Any(),
-		).
-		Return(float32(0), expectedErr).
+		GetWalletAmount(gomock.Any(), gomock.Any()).
+		Return(float32(0), errors.New("some unknown error")).
+		Times(1)
+
+	_, err := u.GetWalletAmount(context.Background(), walletID)
+	if !errors.Is(err, errors.New("some unknown error")) && !errors.Is(err, pgx.ErrNoRows) {
+		t.Fatalf("expected pgx.ErrNoRows or original error, got %v", err)
+	}
+}
+
+func TestUseCase_GetWalletAmount_RepoError(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	mockRepo := mockrepo.NewMockQuerier(ctrl)
+	wl := helper.NewWalletLocker()
+
+	u := wallets_usecase.NewUseCase(zaptest.NewLogger(t), mockRepo, wl)
+
+	walletID := uuid.New()
+	repoErr := errors.New("no rows in result set")
+
+	mockRepo.EXPECT().
+		GetWalletAmount(gomock.Any(), gomock.Any()).
+		Return(float32(0), repoErr).
 		Times(1)
 
 	_, err := u.GetWalletAmount(context.Background(), walletID)
 	if err == nil {
-		t.Fatalf("expected error, got nil")
+		t.Fatal("expected error, got nil")
 	}
-
-	if err.Error() != expectedErr.Error() {
-		t.Fatalf("expected %v, got %v", expectedErr, err)
+	if err.Error() != repoErr.Error() {
+		t.Fatalf("expected %v, got %v", repoErr, err)
 	}
 }
