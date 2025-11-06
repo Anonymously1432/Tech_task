@@ -2,9 +2,12 @@ package wallets
 
 import (
 	"context"
+	"errors"
 	"tech_task/internal/repository/wallets"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgtype"
 	"go.uber.org/zap"
 )
@@ -19,6 +22,12 @@ func (u *UseCase) CreateWalletOperation(ctx context.Context, walletID uuid.UUID,
 		Amount: walletAmount,
 	})
 	if err != nil {
+		var pgErr *pgconn.PgError
+		if errors.As(err, &pgErr) && pgErr.Code == "23503" {
+			u.logger.Error("CreateWalletOperation failed: foreign key violation", zap.Error(err))
+			return 0, pgx.ErrNoRows
+		}
+
 		u.logger.Error("CreateWalletOperation failed", zap.Error(err))
 		return 0, err
 	}

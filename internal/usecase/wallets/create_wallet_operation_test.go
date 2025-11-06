@@ -11,6 +11,8 @@ import (
 
 	"github.com/golang/mock/gomock"
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgtype"
 	"go.uber.org/zap/zaptest"
 )
@@ -174,5 +176,28 @@ func TestUseCase_CreateWalletOperation_ErrorSubtractAmount(t *testing.T) {
 	_, err := u.CreateWalletOperation(ctx, walletID, "WITHDRAW", amount)
 	if err == nil {
 		t.Fatal("expected error, got nil")
+	}
+}
+
+func TestUseCase_CreateWalletOperation_ForeignKeyError(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	mockRepo := mockrepo.NewMockQuerier(ctrl)
+	wl := helper.NewWalletLocker()
+	u := wallets_usecase.NewUseCase(zaptest.NewLogger(t), mockRepo, wl)
+
+	ctx := context.Background()
+	walletID := uuid.New()
+
+	pgErr := &pgconn.PgError{Code: "23503"}
+
+	mockRepo.EXPECT().
+		CreateWalletOperation(ctx, gomock.Any()).
+		Return(nil, pgErr)
+
+	_, err := u.CreateWalletOperation(ctx, walletID, "DEPOSIT", 100)
+	if !errors.Is(err, pgx.ErrNoRows) {
+		t.Fatalf("expected ErrNoRows, got %v", err)
 	}
 }
