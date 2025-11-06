@@ -23,6 +23,12 @@ func (u *UseCase) CreateWalletOperation(ctx context.Context, walletID uuid.UUID,
 		return 0, err
 	}
 
+	idStr := walletID.String()
+
+	// блокируем кошелек
+	u.wl.Lock(idStr)
+	defer u.wl.Unlock(idStr)
+
 	switch operationType {
 	case "DEPOSIT":
 		err = u.repo.AddAmount(ctx, &wallets.AddAmountParams{

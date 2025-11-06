@@ -6,6 +6,7 @@ import (
 	"tech_task/db"
 	"tech_task/internal/config"
 	wallets_handler "tech_task/internal/handler/wallets"
+	"tech_task/internal/helper"
 	wallets_repo "tech_task/internal/repository/wallets"
 	wallets_usecase "tech_task/internal/usecase/wallets"
 
@@ -15,6 +16,13 @@ import (
 
 func main() {
 	app := fiber.New()
+
+	//app.Use(timeout.NewWithContext(
+	//	func(c *fiber.Ctx) error {
+	//		return c.Status(fiber.StatusRequestTimeout).JSON(fiber.Map{
+	//			"error": "request timed out",
+	//		})
+	//	}, 30*time.Second, fiber.ErrRequestTimeout))
 
 	logger, err := zap.NewProduction()
 	if err != nil {
@@ -32,8 +40,10 @@ func main() {
 		log.Fatalf("failed to connect to db: %v", err)
 	}
 
+	walletLocker := helper.NewWalletLocker()
+
 	userRepo := wallets_repo.New(database)
-	userUseCase := wallets_usecase.NewUseCase(logger, userRepo)
+	userUseCase := wallets_usecase.NewUseCase(logger, userRepo, walletLocker)
 	userHandler := wallets_handler.NewHandler(logger, userUseCase)
 	wallets_handler.RegisterRoutes(app, userHandler)
 
