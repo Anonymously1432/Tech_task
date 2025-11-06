@@ -16,11 +16,11 @@ type IUseCase interface {
 
 type UseCase struct {
 	logger *zap.Logger
-	repo   *wallets.Queries
+	repo   wallets.Querier
 	wl     *helper.WalletLocker
 }
 
-func NewUseCase(logger *zap.Logger, repo *wallets.Queries, wl *helper.WalletLocker) IUseCase {
+func NewUseCase(logger *zap.Logger, repo wallets.Querier, wl *helper.WalletLocker) IUseCase {
 	return &UseCase{
 		logger: logger,
 		repo:   repo,
