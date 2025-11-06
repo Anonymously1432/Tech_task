@@ -17,13 +17,6 @@ import (
 func main() {
 	app := fiber.New()
 
-	//app.Use(timeout.NewWithContext(
-	//	func(c *fiber.Ctx) error {
-	//		return c.Status(fiber.StatusRequestTimeout).JSON(fiber.Map{
-	//			"error": "request timed out",
-	//		})
-	//	}, 30*time.Second, fiber.ErrRequestTimeout))
-
 	logger, err := zap.NewProduction()
 	if err != nil {
 		log.Fatalf("cannot create zap logger: %v", err)
