@@ -8,11 +8,6 @@ SELECT amount
 FROM wallets
 WHERE id = $1;
 
--- name: UpdateWalletAmount :exec
-UPDATE wallets
-SET amount = $2
-WHERE id = $1;
-
 -- name: AddAmount :exec
 UPDATE wallets
 SET amount = amount + $2

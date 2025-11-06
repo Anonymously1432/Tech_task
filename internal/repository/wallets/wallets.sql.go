@@ -78,19 +78,3 @@ func (q *Queries) SubtractAmountIfEnough(ctx context.Context, arg *SubtractAmoun
 	_, err := q.db.Exec(ctx, subtractAmountIfEnough, arg.ID, arg.Amount)
 	return err
 }
-
-const updateWalletAmount = `-- name: UpdateWalletAmount :exec
-UPDATE wallets
-SET amount = $2
-WHERE id = $1
-`
-
-type UpdateWalletAmountParams struct {
-	ID     pgtype.UUID `db:"id" json:"id"`
-	Amount float32     `db:"amount" json:"amount"`
-}
-
-func (q *Queries) UpdateWalletAmount(ctx context.Context, arg *UpdateWalletAmountParams) error {
-	_, err := q.db.Exec(ctx, updateWalletAmount, arg.ID, arg.Amount)
-	return err
-}
