@@ -21,7 +21,6 @@ func TestLoad_Success(t *testing.T) {
 		os.Setenv("POSTGRES_DB", oldDB)
 	}()
 
-	// Устанавливаем тестовые значения
 	os.Setenv("POSTGRES_USER", "testuser")
 	os.Setenv("POSTGRES_PASSWORD", "testpass")
 	os.Setenv("POSTGRES_HOST", "localhost")
